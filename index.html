@@ -1,0 +1,615 @@
+<!DOCTYPE HTML>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>OHM KANUNU SİMÜLASYONU</title>
+    <style>
+        /* Dark Theme CSS Variables */
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252a3a;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-blue: #00d4ff;
+            --accent-cyan: #085053;
+            --accent-green: #22c55e;
+            --accent-orange: #ff8c00;
+            --accent-red: #ef4444;
+            --accent-yellow: #ffc800;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glow-blue: rgba(0, 212, 255, 0.3);
+            --glow-cyan: rgba(0, 245, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+            color: var(--accent-blue);
+            border: 2px solid var(--accent-blue);
+            border-radius: 15px;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--glow-cyan);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        #container {
+            display: flex;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+            background: #212942;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+        }
+
+        #canvas-container {
+            flex: 1;
+            background: var(--bg-primary);
+            border-radius: 15px;
+            border: 2px solid var(--accent-blue);
+            box-shadow: 0 0 20px var(--glow-blue);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 450px;
+        }
+
+        canvas {
+            border-radius: 12px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        #panel {
+            width: 280px;
+            background: var(--bg-tertiary);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 8px var(--glow-cyan);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-resistance {
+            background: var(--accent-yellow);
+            color: var(--bg-primary);
+        }
+
+        .btn-voltage {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+        }
+
+        .output {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .output-voltage {
+            color: var(--accent-blue);
+        }
+
+        .output-current {
+            color: var(--accent-red);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 10px 0;
+        }
+
+        .info-text {
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        /* Mobil Responsive */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 18px;
+                padding: 12px 15px;
+                margin-bottom: 15px;
+            }
+
+            #container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            #canvas-container {
+                min-height: 300px;
+                padding: 10px;
+            }
+
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+
+            #panel {
+                width: 100%;
+                padding: 15px;
+            }
+
+            button {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1 {
+                font-size: 16px;
+                padding: 10px 12px;
+            }
+
+            #canvas-container {
+                min-height: 250px;
+            }
+
+            #panel {
+                gap: 12px;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+
+        /* Desktop Scale Enhancement */
+        @media screen and (min-width: 1200px) {
+            body {
+                transform: scale(1.1);
+                transform-origin: top center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>OHM KANUNU SİMÜLASYONU</h1>
+    
+    <div id="container">
+        <div id="canvas-container">
+            <canvas id="circuit" width="500" height="400"></canvas>
+        </div>
+        
+        <div id="panel">
+            <div class="control-group">
+                <label for="voltage-select">Gerilim (U)</label>
+                <select id="voltage-select">
+                    <option value="1">1 V</option>
+                    <option value="2">2 V</option>
+                    <option value="3">3 V</option>
+                    <option value="4" selected>4 V</option>
+                    <option value="5">5 V</option>
+                    <option value="6">6 V</option>
+                    <option value="8">8 V</option>
+                    <option value="10">10 V</option>
+                    <option value="12">12 V</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="resistance-select">Direnç (R)</label>
+                <select id="resistance-select">
+                    <option value="1">1 Ω</option>
+                    <option value="2" selected>2 Ω</option>
+                    <option value="3">3 Ω</option>
+                    <option value="4">4 Ω</option>
+                    <option value="5">5 Ω</option>
+                    <option value="6">6 Ω</option>
+                    <option value="8">8 Ω</option>
+                    <option value="10">10 Ω</option>
+                    <option value="12">12 Ω</option>
+                </select>
+            </div>
+
+            <div class="divider"></div>
+
+            <button class="btn-resistance" onclick="updateResistor()">DİRENÇ DEĞİŞTİR</button>
+            <button class="btn-voltage" onclick="updateVoltage()">GERİLİM DEĞİŞTİR</button>
+
+            <div class="divider"></div>
+
+            <div class="control-group">
+                <label>Gerilim:</label>
+                <div class="output output-voltage" id="voltage-output">U = 4 V</div>
+            </div>
+
+            <div class="control-group">
+                <label>Akım:</label>
+                <div class="output output-current" id="current-output">I = 2 A</div>
+            </div>
+
+            <div class="info-text">
+                Ohm Kanunu: U = R × I
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('circuit');
+        const ctx = canvas.getContext('2d');
+        
+        let voltage = 4;
+        let resistance = 2;
+        let current = 2;
+
+        function calculateCurrent() {
+            current = voltage / resistance;
+        }
+
+        function drawCircuit() {
+            // Temizle
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Arka plan
+            ctx.fillStyle = '#0f1419';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Devre çizimi parametreleri
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const circuitWidth = 300;
+            const circuitHeight = 200;
+
+            // Ana devre hattı
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
+            ctx.shadowBlur = 10;
+
+            // Sol dikey hat
+            ctx.beginPath();
+            ctx.moveTo(centerX - circuitWidth/2, centerY - circuitHeight/2);
+            ctx.lineTo(centerX - circuitWidth/2, centerY + circuitHeight/2);
+            ctx.stroke();
+
+            // Alt yatay hat
+            ctx.beginPath();
+            ctx.moveTo(centerX - circuitWidth/2, centerY + circuitHeight/2);
+            ctx.lineTo(centerX + circuitWidth/2, centerY + circuitHeight/2);
+            ctx.stroke();
+
+            // Sağ dikey hat
+            ctx.beginPath();
+            ctx.moveTo(centerX + circuitWidth/2, centerY + circuitHeight/2);
+            ctx.lineTo(centerX + circuitWidth/2, centerY - circuitHeight/2);
+            ctx.stroke();
+
+            // Üst yatay hat (pil hariç)
+            ctx.beginPath();
+            ctx.moveTo(centerX - circuitWidth/2, centerY - circuitHeight/2);
+            ctx.lineTo(centerX - 60, centerY - circuitHeight/2);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(centerX + 60, centerY - circuitHeight/2);
+            ctx.lineTo(centerX + circuitWidth/2, centerY - circuitHeight/2);
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
+
+            // Pil çizimi (üstte)
+            drawBattery(centerX, centerY - circuitHeight/2, voltage);
+
+            // Direnç çizimi (sağda)
+            drawResistor(centerX + circuitWidth/2, centerY, resistance);
+
+            // Ampermetre (altta)
+            drawAmmeter(centerX, centerY + circuitHeight/2, current);
+
+            // Voltmetre (pil üzerinde)
+            drawVoltmeter(centerX, centerY - circuitHeight/2 - 60, voltage);
+
+            // Akım yönü oklari
+            drawCurrentArrows(centerX, centerY, circuitWidth, circuitHeight);
+        }
+
+        function drawBattery(x, y, volts) {
+            const width = 80;
+            const height = 30;
+
+            // Pil gövdesi
+            ctx.fillStyle = '#ffc800';
+            ctx.fillRect(x - width/2, y - height/2, width, height);
+            
+            // Pil kutupları
+            ctx.fillStyle = '#0f1419';
+            ctx.fillRect(x - width/2 + 10, y - height/2 + 5, 8, height - 10);
+            ctx.fillRect(x + width/2 - 18, y - height/2 + 5, 8, height - 10);
+
+            // + ve - işaretleri
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 20px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('+', x + width/2 - 14, y);
+            ctx.fillText('-', x - width/2 + 14, y);
+
+            // Gerilim değeri
+            ctx.fillStyle = '#00d4ff';
+            ctx.font = 'bold 16px Inter';
+            ctx.fillText(volts + ' V', x, y + height/2 + 20);
+        }
+
+        function drawResistor(x, y, ohms) {
+            const width = 60;
+            const height = 20;
+            const zigzags = 6;
+
+            ctx.strokeStyle = '#ffc800';
+            ctx.lineWidth = 4;
+            ctx.shadowColor = 'rgba(255, 200, 0, 0.5)';
+            ctx.shadowBlur = 8;
+
+            // Zigzag direnç
+            ctx.beginPath();
+            ctx.moveTo(x, y - height * 2);
+            
+            for (let i = 0; i < zigzags; i++) {
+                const yOffset = (i % 2 === 0) ? width/2 : -width/2;
+                ctx.lineTo(x + yOffset, y - height * 2 + (i + 1) * (height * 4 / zigzags));
+            }
+            
+            ctx.lineTo(x, y + height * 2);
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
+
+            // Direnç değeri
+            ctx.fillStyle = '#ffc800';
+            ctx.font = 'bold 16px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText(ohms + ' Ω', x + 40, y);
+        }
+
+        function drawAmmeter(x, y, amps) {
+            const radius = 40;
+
+            // Dış çerçeve
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = 'rgba(239, 68, 68, 0.5)';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
+
+            // İç dolgu
+            ctx.fillStyle = 'rgba(239, 68, 68, 0.1)';
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // A harfi
+            ctx.fillStyle = '#ef4444';
+            ctx.font = 'bold 20px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('A', x, y - 10);
+
+            // Akım değeri
+            ctx.font = 'bold 14px Inter';
+            ctx.fillText(amps.toFixed(2) + ' A', x, y + 10);
+        }
+
+        function drawVoltmeter(x, y, volts) {
+            const radius = 35;
+
+            // Dış çerçeve
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 3;
+            ctx.shadowColor = 'rgba(0, 212, 255, 0.5)';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.shadowBlur = 0;
+
+            // İç dolgu
+            ctx.fillStyle = 'rgba(0, 212, 255, 0.1)';
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // V harfi
+            ctx.fillStyle = '#00d4ff';
+            ctx.font = 'bold 18px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('V', x, y - 8);
+
+            // Gerilim değeri
+            ctx.font = 'bold 13px Inter';
+            ctx.fillText(volts.toFixed(1) + ' V', x, y + 10);
+        }
+
+        function drawCurrentArrows(x, y, w, h) {
+            ctx.fillStyle = '#22c55e';
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 2;
+
+            // Ok çizme fonksiyonu
+            function drawArrow(startX, startY, endX, endY) {
+                const angle = Math.atan2(endY - startY, endX - startX);
+                const arrowLength = 15;
+
+                // Ok gövdesi
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+
+                // Ok başı
+                ctx.beginPath();
+                ctx.moveTo(endX, endY);
+                ctx.lineTo(
+                    endX - arrowLength * Math.cos(angle - Math.PI / 6),
+                    endY - arrowLength * Math.sin(angle - Math.PI / 6)
+                );
+                ctx.lineTo(
+                    endX - arrowLength * Math.cos(angle + Math.PI / 6),
+                    endY - arrowLength * Math.sin(angle + Math.PI / 6)
+                );
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Okları çiz
+            drawArrow(x - w/2 + 30, y - h/2 - 10, x - w/2 + 60, y - h/2 - 10);
+            drawArrow(x + w/2 - 10, y - 30, x + w/2 - 10, y);
+            drawArrow(x + w/2 - 60, y + h/2 + 10, x + w/2 - 30, y + h/2 + 10);
+            drawArrow(x - w/2 + 10, y + 30, x - w/2 + 10, y);
+        }
+
+        function updateDisplay() {
+            document.getElementById('voltage-output').textContent = `U = ${voltage} V`;
+            document.getElementById('current-output').textContent = `I = ${current.toFixed(2)} A`;
+        }
+
+        function updateVoltage() {
+            voltage = parseFloat(document.getElementById('voltage-select').value);
+            calculateCurrent();
+            drawCircuit();
+            updateDisplay();
+        }
+
+        function updateResistor() {
+            resistance = parseFloat(document.getElementById('resistance-select').value);
+            calculateCurrent();
+            drawCircuit();
+            updateDisplay();
+        }
+
+        // Başlangıç
+        calculateCurrent();
+        drawCircuit();
+        updateDisplay();
+
+        // Select değişimlerinde otomatik güncelleme
+        document.getElementById('voltage-select').addEventListener('change', updateVoltage);
+        document.getElementById('resistance-select').addEventListener('change', updateResistor);
+
+        // Canvas responsive resize
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('canvas-container');
+            const maxWidth = container.clientWidth - 40;
+            const maxHeight = container.clientHeight - 40;
+            
+            if (window.innerWidth <= 768) {
+                canvas.style.width = '100%';
+                canvas.style.height = 'auto';
+            }
+            
+            drawCircuit();
+        });
+    </script>
+</body>
+</html>
